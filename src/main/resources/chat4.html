@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>HTML Chat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <style rel="stylesheet">
+        body {
+            background-color: #edecec;
+        }
+        #chat {
+            height: 520px;
+            overflow: auto;
+        }
+        .chat-username {
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+<div class="container text-center">
+    <h1>Bienvenido al Chat NAME</h1>
+</div>
+
+<div class="container chat">
+    <div class="row">
+        <div class="col-sm-9" id="chat">
+            <table class="table table-bordered table-condensed table-striped">
+                <tbody  id="auto_load_div"></tbody>
+            </table>
+        </div>
+        <div class="col-sm-3" id="users">
+            <table class="table table-bordered table-condensed table-striped">
+                <tbody id="auto_load_users"></tbody>
+            </table>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-9">
+            <form method="post">
+                <div class="form-group">
+                    <label for="msgText"> Mensaje:</label>
+                    <input type="text" class="form-control" id="msgText" name="msgText">
+                </div>
+                   <input class="btn btn-primary" type="submit" value="Enviar" class="button" id="send_msg" />
+            </form>
+        </div>
+    </div>
+</div>
+
+<center>
+    <div id="form_logout">
+        <form method="post" action="/logout" class="form">
+            <input class="btn btn-primary" type="submit" value="Logout" class="button" />
+        </form>
+    </div>
+</center>
+<script src="/js/jquery-3.2.1.js" type="text/javascript"></script>
+<script>
+      //TODO: load old messages when scrolling up on chat messages area
+
+      //Load new messages
+      function auto_load(){
+        $.ajax({
+          url: "/msg_ajax_update",
+          cache: false,
+          success: function(data){
+            if (data)
+             $("#auto_load_div").append(data);
+          }
+        });
+      }
+
+      //Load current users
+      function auto_load_users(){
+        $.ajax({
+          url: "/users_ajax_update",
+          cache: false,
+          success: function(data){
+            if (data)
+             $("#auto_load_users").html(data);
+          }
+        });
+      }
+
+      $(document).ready(function(){
+        auto_load();
+        auto_load_users();
+      });
+
+      setInterval(auto_load, 2000);
+      setInterval(auto_load_users, 2000);
+</script>
+<script>
+    function sendMsg() {
+        $("#form_msg").submit(function(e) {
+            e.preventDefault();
+            $.ajax({
+                type: 'POST',
+                url: '/msg_ajax',
+                data: $('form').serialize(),
+                success: function(data) {
+                    if (data)
+                       $("#auto_load_div").append(data);
+                }
+            });
+        });
+    };
+
+    $(document).ready(function() {
+        sendMsg();
+    });
+</script>
+</body>
+</html>
